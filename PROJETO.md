@@ -1085,15 +1085,38 @@ O que dispara o ArgoCD para atualizar os pods.
 
 
 ## 6 Orçamento
+## Cloud Costs (AWS)
 
+Este projeto utiliza recursos da AWS, e abaixo está um resumo dos custos coletados a partir dos relatórios de billing:
 
+- **[Amazon EC2](ca://s?q=Detalhes_sobre_Amazon_EC2)**  
+  - Instância `t3.micro`: 960.5 horas → **$9.99 USD**  
+  - Data Transfer (InterZone-In): 0.718 GB → **$0.007 USD**  
+  - Data Transfer (InterZone-Out): 0.310 GB → **$0.003 USD**
 
+- **[Amazon RDS](ca://s?q=Detalhes_sobre_Amazon_RDS)**  
+  - Instância `db.t3.micro`: 127.9 horas → **$2.30 USD**  
+  - Data Transfer-In: 0.002 GB → **$0.00 USD**
 
+- **[Amazon S3](ca://s?q=Detalhes_sobre_Amazon_S3)**  
+  - Requests Tier1 (PutObject, ListBuckets, etc.): 399 requisições → **$0.002 USD**  
+  - Requests Tier2 (GetObject, HeadObject): 672 requisições → **$0.00027 USD**  
+  - Data Transfer-Out: 0.0002 GB → **$0.00 USD**
 
+- **[AWS Secrets Manager](ca://s?q=Detalhes_sobre_AWS_Secrets_Manager)**  
+  - GetSecretValue: 365 requisições → **$0.0018 USD**  
+  - PutSecretValue: 42 requisições → **$0.00021 USD**  
+  - SecretUsage: 0.189 unidades → **$0.075 USD**
 
+- **[Elastic Load Balancer](ca://s?q=Detalhes_sobre_AWS_ELB)**  
+  - LoadBalancerUsage: 109 horas → **$2.72 USD**  
+  - DataTransfer-Out: 0.026 GB → **$0.002 USD**
 
+- **[Amazon EKS](ca://s?q=Detalhes_sobre_Amazon_EKS)**  
+  - Cluster Usage: 127 horas → **$12.70 USD**
 
-
+### 📊 Total Estimado
+**$37.39 USD** (antes de 
 
 
 ## 7 Video de Apresentação
