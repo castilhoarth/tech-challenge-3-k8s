@@ -1115,8 +1115,8 @@ Este projeto utiliza recursos da AWS, e abaixo está um resumo dos custos coleta
 - **[Amazon EKS](ca://s?q=Detalhes_sobre_Amazon_EKS)**  
   - Cluster Usage: 127 horas → **$12.70 USD**
 
-### 📊 Total Estimado
-**$37.39 USD** (antes de 
+### Total Estimado
+**$37.39 USD** (antes de descontos)
 
 
 ## 7 Video de Apresentação
