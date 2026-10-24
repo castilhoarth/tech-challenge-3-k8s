@@ -77,7 +77,10 @@ resultsCache:
   enabled: false
 
 lokiCanary:
-  enabled: true
+  enabled: false
+
+test:
+  enabled: false
 
 memcached:
   enabled: false
