@@ -92,6 +92,8 @@ config:
         api-key: ${env:NEW_RELIC_LICENSE_KEY}
     prometheusremotewrite:
       endpoint: http://kube-prometheus-stack-prometheus.observability.svc:9090/api/v1/write
+    otlphttp/loki:
+      endpoint: http://loki.observability.svc.cluster.local:3100/otlp
 
   extensions:
     health_check:
@@ -128,3 +130,4 @@ config:
           - batch
         exporters:
           - debug
+          - otlphttp/loki
