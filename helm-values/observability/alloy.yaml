@@ -25,7 +25,8 @@ alloy:
   storagePath: /tmp/alloy
 
 controller:
-  type: daemonset
+  type: deployment
+  replicas: 1
 
 rbac:
   create: true
