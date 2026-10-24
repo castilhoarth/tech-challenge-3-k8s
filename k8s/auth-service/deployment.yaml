@@ -1,83 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
   name: auth-service
   namespace: toggle-prod
   annotations:
     argocd.argoproj.io/sync-wave: "3"
-
 spec:
-
   replicas: 1
-
   selector:
     matchLabels:
       app: auth-service
-
-
   template:
-
     metadata:
       labels:
         app: auth-service
-
-
     spec:
-
       containers:
-
         - name: auth-service
-
-          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/auth-service:latest
-
+          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/auth-service:sha-8ef9ded
           imagePullPolicy: Always
-
-
           ports:
-
             - containerPort: 8001
-
-
           envFrom:
-
             - configMapRef:
                 name: auth-config
-
             - secretRef:
                 name: auth-secret
-              
             - secretRef:
                 name: auth-master-key
-
           resources:
-
             requests:
               cpu: "50m"
               memory: "64Mi"
-
             limits:
               cpu: "250m"
               memory: "256Mi"
-
-
-
           readinessProbe:
-
             httpGet:
               path: /health
               port: 8001
-
             initialDelaySeconds: 10
             periodSeconds: 5
-
-
-
           livenessProbe:
-
             httpGet:
               path: /health
               port: 8001
-
             initialDelaySeconds: 30
             periodSeconds: 10
