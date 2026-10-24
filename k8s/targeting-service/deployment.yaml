@@ -29,7 +29,7 @@ spec:
 
         - name: targeting-service
 
-          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/targeting-service:latest
+          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/targeting-service:sha-8ef9ded
 
           imagePullPolicy: Always
 

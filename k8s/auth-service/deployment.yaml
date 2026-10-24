@@ -29,7 +29,7 @@ spec:
 
         - name: auth-service
 
-          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/auth-service:latest
+          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/auth-service:sha-8ef9ded
 
           imagePullPolicy: Always
 

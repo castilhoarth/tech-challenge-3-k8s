@@ -31,7 +31,7 @@ spec:
 
         - name: evaluation-service
 
-          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/evaluation-service:latest
+          image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/evaluation-service:sha-8ef9ded
 
           imagePullPolicy: Always
 
