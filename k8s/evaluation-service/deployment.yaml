@@ -8,39 +8,25 @@ metadata:
     argocd.argoproj.io/sync-wave: "6"
 
 spec:
-
   replicas: 1
-
   selector:
     matchLabels:
       app: evaluation-service
-
-
   template:
-
     metadata:
       labels:
         app: evaluation-service
-
-
     spec:
-
       serviceAccountName: evaluation-service
-
       containers:
-
         - name: evaluation-service
-
           image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/evaluation-service:sha-8ef9ded
-
           imagePullPolicy: Always
-
-
           ports:
-
             - containerPort: 8004
-
-
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
           envFrom:
             - configMapRef:
                 name: evaluation-config
@@ -48,36 +34,22 @@ spec:
                 name: evaluation-runtime-config
             - secretRef:
                 name: evaluation-secret
-
-
           resources:
-
             requests:
               cpu: "50m"
               memory: "64Mi"
-
             limits:
               cpu: "250m"
               memory: "256Mi"
-
-
-
           readinessProbe:
-
             httpGet:
               path: /health
               port: 8004
-
             initialDelaySeconds: 10
             periodSeconds: 5
-
-
-
           livenessProbe:
-
             httpGet:
               path: /health
               port: 8004
-
             initialDelaySeconds: 30
             periodSeconds: 10
