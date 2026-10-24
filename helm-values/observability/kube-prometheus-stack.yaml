@@ -59,6 +59,11 @@ grafana:
   enabled: true
   persistence:
     enabled: false
+  envValueFrom:
+    GF_SERVER_ROOT_URL:
+      configMapKeyRef:
+        name: grafana-public-url
+        key: root_url
   grafana.ini:
     server:
       domain: ""
