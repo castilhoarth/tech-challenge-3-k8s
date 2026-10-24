@@ -85,7 +85,7 @@ config:
 
   exporters:
     debug:
-      verbosity: basic
+      verbosity: detailed
     otlp_http/newrelic:
       endpoint: https://otlp.nr-data.net
       headers:
