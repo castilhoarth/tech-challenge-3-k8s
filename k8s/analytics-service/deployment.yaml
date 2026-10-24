@@ -25,6 +25,8 @@ spec:
           env:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+            - name: OTEL_SERVICE_NAME
+              value: "analytics-service"
           envFrom:
             - configMapRef:
                 name: analytics-config
