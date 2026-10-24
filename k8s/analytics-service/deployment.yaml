@@ -22,6 +22,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8005
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
           envFrom:
             - configMapRef:
                 name: analytics-config

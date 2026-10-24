@@ -6,76 +6,46 @@ metadata:
   namespace: toggle-prod
   annotations:
     argocd.argoproj.io/sync-wave: "3"
-
 spec:
-
   replicas: 1
-
   selector:
     matchLabels:
       app: targeting-service
-
-
   template:
-
     metadata:
       labels:
         app: targeting-service
-
-
     spec:
-
       containers:
-
         - name: targeting-service
-
           image: 576394965690.dkr.ecr.us-east-1.amazonaws.com/targeting-service:sha-8ef9ded
-
           imagePullPolicy: Always
-
-
           ports:
-
             - containerPort: 8003
-
-
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
           envFrom:
-
             - configMapRef:
                 name: targeting-config
-
             - secretRef:
                 name: targeting-secret
-
-
           resources:
-
             requests:
               cpu: "50m"
               memory: "64Mi"
-
             limits:
               cpu: "250m"
               memory: "256Mi"
-
-
-
           readinessProbe:
-
             httpGet:
               path: /health
               port: 8003
-
             initialDelaySeconds: 10
             periodSeconds: 5
-
-
-
           livenessProbe:
-
             httpGet:
               path: /health
               port: 8003
-
             initialDelaySeconds: 30
             periodSeconds: 10
