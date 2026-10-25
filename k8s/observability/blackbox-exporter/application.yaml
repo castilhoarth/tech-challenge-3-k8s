@@ -18,9 +18,6 @@ spec:
     - repoURL: https://github.com/castilhoarth/tech-challenge-3-k8s.git
       targetRevision: feature/fase-4-observabilidade
       ref: values
-    - repoURL: https://github.com/castilhoarth/tech-challenge-3-k8s.git
-      targetRevision: feature/fase-4-observabilidade
-      path: observability-manifests/blackbox-probes
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
