@@ -75,6 +75,39 @@ config:
                   - __meta_kubernetes_pod_container_port_number
                 action: keep
                 regex: "9100"
+          - job_name: blackbox-health-via-otel
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://auth-service.toggle-prod.svc.cluster.local:8001/health
+                labels:
+                  service: auth-service
+              - targets:
+                  - http://flag-service.toggle-prod.svc.cluster.local:8002/health
+                labels:
+                  service: flag-service
+              - targets:
+                  - http://targeting-service.toggle-prod.svc.cluster.local:8003/health
+                labels:
+                  service: targeting-service
+              - targets:
+                  - http://evaluation-service.toggle-prod.svc.cluster.local:8004/health
+                labels:
+                  service: evaluation-service
+              - targets:
+                  - http://analytics-service.toggle-prod.svc.cluster.local:8005/health
+                labels:
+                  service: analytics-service
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
 
   processors:
     memory_limiter:
