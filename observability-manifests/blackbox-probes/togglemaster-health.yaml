@@ -18,3 +18,8 @@ spec:
         - http://targeting-service.toggle-prod.svc.cluster.local:8003/health
         - http://evaluation-service.toggle-prod.svc.cluster.local:8004/health
         - http://analytics-service.toggle-prod.svc.cluster.local:8005/health
+      relabelingConfigs:
+        - sourceLabels: [__param_target]
+          regex: 'http://([^.-]+-service)\.toggle-prod\.svc\.cluster\.local:.*'
+          targetLabel: service
+          replacement: '${1}'
