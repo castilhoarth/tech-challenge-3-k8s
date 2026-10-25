@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: togglemaster-health-checks
+  namespace: observability
+  labels:
+    release: kube-prometheus-stack
+spec:
+  interval: 30s
+  module: http_2xx
+  prober:
+    url: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - http://auth-service.toggle-prod.svc.cluster.local:8001/health
+        - http://flag-service.toggle-prod.svc.cluster.local:8002/health
+        - http://targeting-service.toggle-prod.svc.cluster.local:8003/health
+        - http://evaluation-service.toggle-prod.svc.cluster.local:8004/health
+        - http://analytics-service.toggle-prod.svc.cluster.local:8005/health

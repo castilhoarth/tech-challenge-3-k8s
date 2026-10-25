@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: blackbox-exporter
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: prometheus-blackbox-exporter
+      targetRevision: "11.20.2"
+      helm:
+        releaseName: blackbox-exporter
+        valueFiles:
+          - $values/helm-values/observability/blackbox-exporter.yaml
+    - repoURL: https://github.com/castilhoarth/tech-challenge-3-k8s.git
+      targetRevision: feature/fase-4-observabilidade
+      ref: values
+    - repoURL: https://github.com/castilhoarth/tech-challenge-3-k8s.git
+      targetRevision: feature/fase-4-observabilidade
+      path: k8s/observability/blackbox-probes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: observability
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
