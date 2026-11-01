@@ -6,8 +6,8 @@ namespace: observability
 configMapGenerator:
   - name: grafana-dashboards
     files:
-      - teste-1792956547564.json
       - togglemaster-observability.json
+      - Dashboard-AppServices.json
     options:
       labels:
         grafana_dashboard: "1"
