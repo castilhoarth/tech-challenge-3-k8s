@@ -1,14 +1,11 @@
 {
   "id": null,
   "uid": "togglemaster-observability",
-  "title": "ToggleMaster — Observability",
+  "title": "Observability / Overview",
   "description": "Dashboard de observabilidade da plataforma ToggleMaster: disponibilidade, performance HTTP, infraestrutura Kubernetes e logs.",
   "tags": [
-    "ToggleMaster",
     "Observability",
-    "EKS",
-    "Prometheus",
-    "Loki"
+    "Prometheus"
   ],
   "timezone": "browser",
   "schemaVersion": 39,
