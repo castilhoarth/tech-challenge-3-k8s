@@ -948,7 +948,7 @@
       },
       "targets": [
         {
-          "expr": "{namespace=\"toggle-prod\"}",
+          "expr": "{instance=~\".*toggle-prod.*\"}",
           "refId": "A",
           "queryType": "range"
         }
