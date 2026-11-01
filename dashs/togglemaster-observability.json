@@ -948,9 +948,16 @@
       },
       "targets": [
         {
-          "expr": "{instance=~\".*toggle-prod.*\"}",
-          "refId": "A",
-          "queryType": "range"
+            "refId": "A",
+            "expr": "{instance=~\".*toggle-prod.*\"}",
+            "queryType": "range",
+            "editorMode": "code",
+            "direction": "backward",
+            "maxLines": 1000,
+            "datasource": {
+            "type": "loki",
+            "uid": "loki"
+            }
         }
       ],
       "options": {
