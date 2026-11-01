@@ -63,6 +63,14 @@ grafana:
       configMapKeyRef:
         name: grafana-public-url
         key: root_url
+    WEBHOOK_TOKEN:
+      secretKeyRef:
+        name: self-healing-webhook-token
+        key: WEBHOOK_TOKEN
+    WEBHOOK_URL:
+      secretKeyRef:
+        name: self-healing-webhook-url
+        key: WEBHOOK_URL
 
   grafana.ini:
     server:
