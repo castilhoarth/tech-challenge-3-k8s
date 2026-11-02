@@ -63,14 +63,21 @@ grafana:
       configMapKeyRef:
         name: grafana-public-url
         key: root_url
-    WEBHOOK_TOKEN:
+
+    SELF_HEALING_WEBHOOK_TOKEN:
       secretKeyRef:
         name: self-healing-webhook-token
         key: WEBHOOK_TOKEN
-    WEBHOOK_URL:
+
+    SELF_HEALING_WEBHOOK_URL:
       secretKeyRef:
         name: self-healing-webhook-url
         key: WEBHOOK_URL
+
+    JSM_OPSGENIE_TOKEN:
+      secretKeyRef:
+        name: grafana-jsm-api-key
+        key: JSM_OPSGENIE_TOKEN
 
   grafana.ini:
     server:
@@ -107,6 +114,13 @@ grafana:
       provider:
         allowUiUpdates: false
         foldersFromFilesStructure: false
+
+  
+  extraConfigmapMounts:
+    - name: grafana-alerting
+      mountPath: /etc/grafana/provisioning/alerting
+      configMap: grafana-alerting
+      readOnly: true
 
 alertmanager:
   enabled: true
