@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: https://github.com/castilhoarth/tech-challenge-3-k8s.git
     targetRevision: feature/fase-4-observabilidade
-    path: k8s/observability/grafana-alerts
+    path: grafana-alerts
   destination:
     server: https://kubernetes.default.svc
     namespace: observability
