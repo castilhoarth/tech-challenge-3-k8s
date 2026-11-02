@@ -4,7 +4,7 @@ apiVersion: 1
 groups:
   - orgId: 1
     name: latency
-    folder: Self-Healing
+    folder: Toggle-Prod
     interval: 30s
 
     rules:

@@ -9,6 +9,8 @@ configMapGenerator:
     files:
       - contact-points.yaml
       - http-500.yaml=rules/http-500.yaml
+      - latencia.yaml=rules/latencia.yaml
+
 
 generatorOptions:
   disableNameSuffixHash: true
