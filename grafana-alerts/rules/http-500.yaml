@@ -97,6 +97,7 @@ groups:
 
         labels:
           severity: critical
+          og_priority: P1
           namespace: toggle-prod
           deployment: '{{ $$labels.job }}'
 
