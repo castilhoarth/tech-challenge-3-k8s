@@ -59,8 +59,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 24,
+        "h": 7,
+        "w": 13,
         "x": 0,
         "y": 0
       },
@@ -93,6 +93,82 @@
         }
       ],
       "title": "Média de Erros HTTP 500",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Percentil 95 da duração das requisições HTTP, em milissegundos.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 6
+              },
+              {
+                "color": "dark-orange",
+                "value": 10
+              },
+              {
+                "color": "dark-red",
+                "value": 12
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 11,
+        "x": 13,
+        "y": 0
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_duration_milliseconds_bucket[$__range])))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Latência de requisições",
       "transparent": true,
       "type": "stat"
     },
@@ -171,10 +247,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
+        "h": 9,
         "w": 24,
         "x": 0,
-        "y": 6
+        "y": 7
       },
       "id": 8,
       "options": {
@@ -297,32 +373,66 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Apresenta o percentual de utilização da memória em relação ao limite configurado para cada container no namespace toggle-prod. Permite acompanhar o consumo de memória dos serviços e identificar aplicações próximas de atingir seu limite.",
+      "description": "Apresenta o percentual de memória RAM utilizada em cada Node do cluster Kubernetes, considerando a memória total e a memória disponível. Permite acompanhar o consumo de recursos dos Nodes e identificar possíveis situações de alta utilização de memória.",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "inspect": false
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "dashed"
+            }
           },
           "decimals": 2,
           "mappings": [],
           "max": 100,
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": 0
               },
               {
-                "color": "red",
+                "color": "yellow",
                 "value": 80
+              },
+              {
+                "color": "dark-orange",
+                "value": 85
+              },
+              {
+                "color": "dark-red",
+                "value": 95
               }
             ]
           },
@@ -338,31 +448,31 @@
       },
       "id": 7,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "frameIndex": 3,
-        "showHeader": true
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.1.1",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sort_desc(\n  100 *\n  (\n    sum by (namespace, container) (\n      container_memory_working_set_bytes{\n        namespace=\"toggle-prod\",\n        container!=\"\",\n        container!=\"POD\"\n      }\n    )\n    /\n    on (namespace, container)\n    sum by (namespace, container) (\n      kube_pod_container_resource_limits{\n        namespace=\"toggle-prod\",\n        resource=\"memory\",\n        unit=\"byte\"\n      }\n    )\n  )\n)",
+          "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=\"node-exporter-via-otel\"} / node_memory_MemTotal_bytes{job=\"node-exporter-via-otel\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Utilização do Limite de Memória (%)",
+      "title": "Utilização de memória por node",
       "transparent": true,
-      "type": "table"
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -373,7 +483,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "continuous-GrYlRd"
+            "mode": "thresholds"
           },
           "decimals": 2,
           "fieldMinMax": false,
@@ -413,7 +523,7 @@
       },
       "id": 1,
       "options": {
-        "displayMode": "gradient",
+        "displayMode": "lcd",
         "legend": {
           "calcs": [],
           "displayMode": "list",
@@ -424,7 +534,7 @@
         "minVizHeight": 16,
         "minVizWidth": 8,
         "namePlacement": "auto",
-        "orientation": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -446,7 +556,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sort_desc(\r\n  100 *\r\n  (\r\n    sum by (container) (\r\n      rate(container_cpu_usage_seconds_total{\r\n        namespace=\"toggle-prod\",\r\n        container!=\"\",\r\n        container!=\"POD\"\r\n      }[5m])\r\n    )\r\n    /\r\n    on (container)\r\n    sum by (container) (\r\n      kube_pod_container_resource_limits{\r\n        namespace=\"toggle-prod\",\r\n        resource=\"cpu\",\r\n        unit=\"core\"\r\n      }\r\n    )\r\n  )\r\n)",
+          "expr": "sort_desc(\n  1000 *\n  sum by (container) (\n    rate(container_cpu_usage_seconds_total{\n      namespace=\"toggle-prod\",\n      container!=\"\",\n      container!=\"POD\"\n    }[5m])\n  )\n)",
           "instant": false,
           "interval": "",
           "legendFormat": "__auto",
@@ -454,7 +564,7 @@
           "refId": "Top consumidores de CPU"
         }
       ],
-      "title": "Consumo de CPU",
+      "title": "Consumo de CPU por aplicação",
       "transparent": true,
       "type": "bargauge"
     },
@@ -463,11 +573,44 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Consmo absoluto de cada serviço",
+      "description": "Apresenta o percentual de utilização de CPU de cada aplicação em relação ao limite de processamento configurado para seus containers no namespace toggle-prod. Permite acompanhar o consumo proporcional de CPU e identificar serviços que estejam se aproximando do limite estabelecido.",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "decimals": 2,
           "fieldMinMax": false,
@@ -497,42 +640,77 @@
       },
       "id": 6,
       "options": {
-        "displayMode": "gradient",
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom",
-          "showLegend": false
+          "showLegend": true
         },
-        "maxVizHeight": 300,
-        "minVizHeight": 16,
-        "minVizWidth": 8,
-        "namePlacement": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "valueMode": "color"
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "12.1.1",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sort_desc(\n  1000 *\n  sum by (container) (\n    rate(container_cpu_usage_seconds_total{\n      namespace=\"toggle-prod\",\n      container!=\"\",\n      container!=\"POD\"\n    }[5m])\n  )\n)",
+          "expr": "sort_desc(\n  100 *\n  (\n    sum by (container) (\n      rate(container_cpu_usage_seconds_total{\n        namespace=\"toggle-prod\",\n        container!=\"\",\n        container!=\"POD\"\n      }[5m])\n    )\n    /\n    on (container)\n    sum by (container) (\n      kube_pod_container_resource_limits{\n        namespace=\"toggle-prod\",\n        resource=\"cpu\",\n        unit=\"core\"\n      }\n    )\n  )\n)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Consumo de CPU (mCPU)",
+      "title": "Utilização do Limite de CPU por Aplicação",
       "transparent": true,
-      "type": "bargauge"
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "description": "Logs coletados pelo Grafana Alloy e consultados no Loki. Filtro inicial pelo namespace toggle-prod.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 33
+      },
+      "id": 10,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "pluginVersion": "12.1.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "direction": "backward",
+          "editorMode": "code",
+          "expr": "{instance=~\".*toggle-prod.*\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs dos microsserviços",
+      "transparent": true,
+      "type": "logs"
     }
   ],
   "preload": false,
@@ -542,12 +720,12 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Toggle Services – Observability",
   "uid": "66910876-d8ec-40fb-ad8b-0912afe9b308",
-  "version": 1
+  "version": 2
 }
