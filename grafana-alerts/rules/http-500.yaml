@@ -20,7 +20,7 @@ groups:
           severity: critical
           action: restart
           namespace: toggle-prod
-          deployment: '{{ $labels.job }}'
+          deployment: '{{ $$labels.job }}'
 
         annotations:
           summary: HTTP 500 persistente no {{ $labels.job }}
