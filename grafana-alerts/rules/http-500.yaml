@@ -87,3 +87,80 @@ groups:
                     params: []
                   type: query
 
+      - uid: erro500-oncall
+        title: erro500-oncall
+        condition: B
+        for: 3m
+        keepFiringFor: 0s
+        noDataState: NoData
+        execErrState: Error
+
+        labels:
+          severity: critical
+          namespace: toggle-prod
+          deployment: '{{ $$labels.job }}'
+
+        annotations:
+          summary: HTTP 500 persistente no {{ $labels.job }} - On-call
+          description: O serviço {{ $labels.job }} continua apresentando HTTP 500 após tentativa de self-healing.
+
+        notification_settings:
+          receiver: jsm-operations
+          group_by:
+            - alertname
+            - job
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 24h
+
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 60
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              editorMode: code
+              expr: |
+                sum by (job) (
+                  increase(
+                    http_server_duration_milliseconds_count{
+                      http_status_code="500"
+                    }[2m]
+                  )
+                )
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+
+          - refId: B
+            datasourceUid: __expr__
+            relativeTimeRange:
+              from: 60
+              to: 0
+            model:
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              type: threshold
+              refId: B
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    type: last
+                    params: []
+                  type: query    
+

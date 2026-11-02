@@ -22,5 +22,6 @@ contactPoints:
           apiUrl: https://api.atlassian.com/jsm/ops/integration/v2/alerts
           apiKey: $JSM_OPSGENIE_TOKEN
           autoClose: true
-          overridePriority: false
+          disableResolveMessage: false
+          overridePriority: true
           sendTagsAs: both
