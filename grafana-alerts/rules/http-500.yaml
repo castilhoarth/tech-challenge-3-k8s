@@ -50,7 +50,7 @@ groups:
                   increase(
                     http_server_duration_milliseconds_count{
                       http_status_code="500"
-                    }[1m]
+                    }[2m]
                   )
                 )
               instant: true
