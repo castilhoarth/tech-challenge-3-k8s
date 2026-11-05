@@ -187,7 +187,6 @@ Também foram realizadas consultas NRQL para verificar a quantidade de spans por
 Uma entidade anterior identificada como `unknown_service:python3.11` não apresentou spans na consulta da última hora, indicando que não havia telemetria recente associada a esse nome no período consultado.
 
 A validação do Service Map e do caminho completo de uma requisição distribuída deve complementar essa verificação.
-<img width="1543" height="912" alt="WhatsApp Image 2026-11-04 at 21 26 13" src="https://github.com/user-attachments/assets/ac2bffb3-0001-4730-886b-dc70a5a7d1dd" />
 
 
 Uma consulta usada para verificar a chegada de spans por serviço foi:
@@ -225,6 +224,8 @@ A atualização do repositório GitOps é opcional e ocorre por commit no reposi
 O teste de distributed tracing documentado no runbook confirmou traces recentes relacionando os cinco microsserviços em uma mesma execução. A propagação síncrona conecta `evaluation-service` a `flag-service` e `targeting-service`; operações instrumentadas podem adicionar as dependências PostgreSQL e Redis. O caminho assíncrono pode incluir `analytics-service` quando a mensagem SQS é consumida com sucesso.
 
 Essa validação comprova a propagação de contexto entre serviços, mas não deve ser confundida com uma validação visual completa do Service Map do New Relic. A inclusão dos serviços assíncronos depende do fluxo real da fila e das credenciais AWS válidas.
+<img width="1543" height="912" alt="WhatsApp Image 2026-11-04 at 21 26 13" src="https://github.com/user-attachments/assets/ac2bffb3-0001-4730-886b-dc70a5a7d1dd" />
+
 
 ## Dashboards
 O relatório registra o acesso externo ao Grafana e ao Prometheus por URLs publicadas no NGINX Ingress. O Prometheus e o Loki fornecem, respectivamente, métricas e logs para consulta; os READMEs não especificam os painéis, os indicadores ou as regras visuais de cada dashboard.
