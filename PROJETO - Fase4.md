@@ -187,6 +187,8 @@ Também foram realizadas consultas NRQL para verificar a quantidade de spans por
 Uma entidade anterior identificada como `unknown_service:python3.11` não apresentou spans na consulta da última hora, indicando que não havia telemetria recente associada a esse nome no período consultado.
 
 A validação do Service Map e do caminho completo de uma requisição distribuída deve complementar essa verificação.
+<img width="1543" height="912" alt="WhatsApp Image 2026-11-04 at 21 26 13" src="https://github.com/user-attachments/assets/ac2bffb3-0001-4730-886b-dc70a5a7d1dd" />
+
 
 Uma consulta usada para verificar a chegada de spans por serviço foi:
 
