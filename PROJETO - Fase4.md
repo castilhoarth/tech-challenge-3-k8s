@@ -646,6 +646,8 @@ O JSM é integrado ao Slack de forma bidirecional, de forma que os alertas são 
 
 Foi implementada uma função AWS Lambda em Python (`app.handler`) para receber o webhook do Grafana e solicitar o reinício gradual de um Deployment no Amazon EKS. O caminho é: Grafana → API Gateway → Lambda → API Kubernetes do EKS.
 
+![image-20261107160510314](./img/image-20261107160510314.png)
+
 A função valida o método HTTP, compara o token Bearer em tempo constante, interpreta JSON simples ou codificado em Base64 e ignora alertas resolvidos ou sem alertas `firing`. Para um alerta em disparo, exige `namespace` e `deployment`, restringe o namespace por `ALLOWED_NAMESPACE` e valida o formato DNS do nome antes de usá-lo na URL da API.
 
 Para autenticar no EKS, a Lambda assina uma solicitação `GetCallerIdentity` do STS com as credenciais IAM do runtime e gera um token temporário. A conexão com a API Kubernetes usa HTTPS e valida o certificado CA do cluster. O reinício é solicitado por um `PATCH` que atualiza `kubectl.kubernetes.io/restartedAt` no pod template; o Kubernetes executa o rolling update conforme a estratégia do Deployment. A resposta confirma o pedido, mas não aguarda o rollout terminar.
