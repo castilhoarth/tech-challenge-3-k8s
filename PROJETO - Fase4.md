@@ -528,7 +528,7 @@ Essa visão consolidada facilita a identificação de indisponibilidades, degrad
 
 
 
-### Alertas Inteligentes e Self-Healing
+## Alertas Inteligentes e Self-Healing
 
 ```mermaid
 
