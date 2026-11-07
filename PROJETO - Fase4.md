@@ -758,7 +758,7 @@ E no Slack:
 
 Durante a implementação da solução de observabilidade, foram identificados desafios relacionados à capacidade da infraestrutura, configuração dos componentes, integração entre ferramentas e gerenciamento de credenciais.
 
-#### 1. Limitação de capacidade dos nodes Kubernetes
+### 1. Limitação de capacidade dos nodes Kubernetes
 
 Inicialmente, a infraestrutura do EKS apresentava limitações na quantidade de pods que poderiam ser executados simultaneamente por node. Essa restrição impactou a implantação dos microsserviços e dos componentes de observabilidade.
 
@@ -766,7 +766,7 @@ Para solucionar o problema, foi necessário aumentar o tamanho dos nodes de Micr
 
 Após os ajustes, os deployments passaram a apresentar condições estáveis de execução.
 
-#### 2. Problemas de comunicação com o OpenTelemetry Collector
+### 2. Problemas de comunicação com o OpenTelemetry Collector
 
 Durante a configuração da instrumentação, foram identificados problemas de resolução DNS entre os microsserviços e o OpenTelemetry Collector.
 
@@ -778,7 +778,7 @@ opentelemetry-collector.observability.svc.cluster.local:4318
 
 Também foi necessário configurar o protocolo `http/protobuf`, garantindo o envio dos dados via OTLP.
 
-#### 3. Padronização da instrumentação OpenTelemetry
+### 3. Padronização da instrumentação OpenTelemetry
 
 A instrumentação dos microsserviços exigiu a padronização das variáveis de ambiente responsáveis pela configuração do OpenTelemetry.
 
@@ -786,7 +786,7 @@ Foram configurados os endpoints de exportação, protocolos, exporters e nomes d
 
 Essa padronização facilitou a manutenção e a identificação dos serviços nas ferramentas de observabilidade.
 
-#### 4. Identificação incorreta dos microsserviços no New Relic
+### 4. Identificação incorreta dos microsserviços no New Relic
 
 Inicialmente, alguns microsserviços Python eram identificados no New Relic como `unknown_service:python3.11`, dificultando a identificação das aplicações no APM e no Distributed Tracing.
 
@@ -794,7 +794,7 @@ Para solucionar o problema, foi necessário configurar explicitamente a variáve
 
 Após os ajustes e reinicialização dos deployments, os cinco microsserviços passaram a ser identificados individualmente no New Relic.
 
-#### 5. Configuração e validação do pipeline de traces
+### 5. Configuração e validação do pipeline de traces
 
 Durante a implementação do OpenTelemetry Collector, foi necessário configurar e validar o pipeline de traces, garantindo que os dados recebidos dos microsserviços fossem encaminhados corretamente ao New Relic.
 
@@ -802,7 +802,7 @@ Também foram utilizados mecanismos de diagnóstico, incluindo o debug exporter,
 
 Esse processo permitiu identificar problemas de configuração e validar o funcionamento da integração com o APM.
 
-#### 6. Possibilidade de duplicidade na coleta de logs
+### 6. Possibilidade de duplicidade na coleta de logs
 
 A implementação da centralização de logs exigiu atenção à possibilidade de duplicidade de registros, considerando que os logs poderiam ser coletados pelo Grafana Alloy e também enviados diretamente pelos microsserviços via OTLP ao OpenTelemetry Collector.
 
@@ -810,7 +810,7 @@ Foi necessário avaliar os mecanismos de coleta e encaminhamento, evitando dupli
 
 Também foram ajustados os labels utilizados nas consultas LogQL, facilitando a identificação dos microsserviços e a investigação de erros.
 
-#### 7. Sincronização e gerenciamento GitOps pelo Argo CD
+### 7. Sincronização e gerenciamento GitOps pelo Argo CD
 
 A utilização do Argo CD para gerenciamento GitOps exigiu atenção à sincronização entre os manifests versionados no Git e os recursos implantados no Kubernetes.
 
@@ -818,7 +818,7 @@ Durante o processo, foram identificadas divergências de estado entre recursos d
 
 Foi necessário analisar as diferenças de configuração e ajustar a estratégia de sincronização, preservando o comportamento dos recursos gerenciados automaticamente pelo Kubernetes.
 
-#### 8. Gerenciamento seguro de credenciais e secrets
+### 8. Gerenciamento seguro de credenciais e secrets
 
 A configuração das integrações com New Relic, AWS Lambda e Jira Service Management exigiu o gerenciamento seguro de credenciais e tokens.
 
@@ -826,7 +826,7 @@ Para evitar a exposição de informações sensíveis em arquivos versionados ou
 
 Esse processo permitiu separar as credenciais das configurações operacionais, proteger tokens de autenticação e facilitar a manutenção das integrações.
 
-#### 9. Exposição dos serviços de observabilidade via Ingress NGINX
+### 9. Exposição dos serviços de observabilidade via Ingress NGINX
 
 A disponibilização do Grafana e Prometheus para acesso externo exigiu a configuração do Ingress NGINX, incluindo regras de roteamento e integração com os serviços internos do Kubernetes.
 
@@ -834,7 +834,7 @@ Foi necessário ajustar os recursos de Ingress e validar a comunicação entre o
 
 Após os ajustes, foi possível disponibilizar as interfaces de monitoramento para consulta de dashboards, métricas e logs.
 
-#### 10. Integração do Grafana com AWS Lambda para Self-Healing
+### 10. Integração do Grafana com AWS Lambda para Self-Healing
 
 A implementação do mecanismo de self-healing exigiu a integração entre os alertas do Grafana, o API Gateway e a AWS Lambda responsável por reiniciar os deployments Kubernetes.
 
@@ -844,7 +844,7 @@ Também foi necessário configurar o gerenciamento seguro das credenciais utiliz
 
 Após os ajustes, o mecanismo passou a permitir o acionamento automatizado da recuperação de workloads a partir dos alertas configurados.
 
-#### 11. Integração de alertas com Jira Service Management
+### 11. Integração de alertas com Jira Service Management
 
 A integração entre Grafana e Jira Service Management exigiu a configuração de autenticação, endpoints e credenciais de acesso ao JSM.
 
@@ -852,7 +852,7 @@ Foi necessário utilizar secrets para armazenar de forma segura os tokens e dado
 
 Essa integração possibilitou encaminhar alertas de observabilidade para o gerenciamento de incidentes, permitindo organizar prioridades, acompanhar ocorrências e realizar o escalonamento operacional.
 
-#### 12. Configuração e validação das regras de alertas
+### 12. Configuração e validação das regras de alertas
 
 A implementação das regras de alertas exigiu a definição de limites de latência e disponibilidade, considerando diferentes níveis de severidade.
 
@@ -862,7 +862,7 @@ Também foi necessário validar os alertas por meio de testes de carga e simula�
 
 ## Justificativas
 
-#### Arquitetura OpenTelemetry
+### Arquitetura OpenTelemetry
 
 A arquitetura de observabilidade da ToggleMaster foi implementada utilizando o OpenTelemetry como padrão de instrumentação e integração entre os microsserviços e as ferramentas de monitoramento.
 
@@ -878,7 +878,7 @@ Complementarmente, o Grafana Alloy realiza a coleta dos logs dos containers Kube
 
 Essa arquitetura oferece flexibilidade, reduz o acoplamento entre aplicações e ferramentas comerciais e permite substituir ou adicionar backends de observabilidade sem exigir alterações significativas na instrumentação dos microsserviços.
 
-#### Escolha entre Datadog e New Relic
+### Escolha entre Datadog e New Relic
 
 Para o monitoramento APM e Distributed Tracing, foi escolhido o New Relic em vez do Datadog.
 
@@ -888,7 +888,7 @@ O New Relic permite visualizar os traces recebidos pelo OpenTelemetry Collector,
 
 O Datadog também oferece recursos equivalentes de APM, observabilidade distribuída e integração com OpenTelemetry. Entretanto, para este projeto, o New Relic foi considerado uma alternativa adequada para demonstrar os recursos de observabilidade distribuída, mantendo a instrumentação independente do fornecedor.
 
-#### Escolha entre OpsGenie e PagerDuty
+### Escolha entre OpsGenie e PagerDuty
 
 Para gerenciamento de incidentes e escalonamento operacional, OpsGenie e PagerDuty são soluções que oferecem recursos de alertas, gerenciamento de incidentes, escalas de plantão e notificações.
 
@@ -902,7 +902,7 @@ O fluxo implementado permite encaminhar alertas do Grafana ao JSM, organizar inc
 
 Dessa forma, foi possível demonstrar um fluxo de gerenciamento de incidentes integrado à observabilidade, sem introduzir uma plataforma adicional exclusivamente para gerenciamento de plantões.
 
-#### Considerações finais
+### Considerações finais
 
 A arquitetura adotada combina instrumentação aberta com ferramentas especializadas, permitindo manter independência tecnológica na coleta da telemetria e utilizar plataformas adequadas para análise de traces, visualização de métricas e logs e gerenciamento de incidentes.
 
