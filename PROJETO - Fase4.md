@@ -341,7 +341,7 @@ O componente self-healing possui testes `pytest` para parsing do webhook, autent
 
 Os testes automatizados verificam a lógica com chamadas externas simuladas; eles não substituem a validação de conectividade, permissões IAM/RBAC nem o acompanhamento do rollout em um cluster AWS/EKS.
 
-### Relatórios e Dashboards
+## Relatórios e Dashboards
 
 Foi configurado o Ingress NGINX para expor externamente as interfaces do Grafana e Prometheus, permitindo acesso aos dashboards, métricas e ferramentas de análise sem depender exclusivamente de acesso interno ao cluster.
 
