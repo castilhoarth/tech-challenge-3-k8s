@@ -1095,13 +1095,12 @@ Essa arquitetura oferece flexibilidade, reduz o acoplamento entre aplicações e
 
 ### Escolha entre Datadog e New Relic
 
-Para o monitoramento APM e Distributed Tracing, foi escolhido o New Relic em vez do Datadog.
-
-A decisão considerou principalmente a facilidade de integração com OpenTelemetry, a disponibilidade de recursos de APM e rastreamento distribuído e a adequação ao escopo do projeto.
-
-O New Relic permite visualizar os traces recebidos pelo OpenTelemetry Collector, identificar os microsserviços envolvidos nas requisições e analisar tempos de resposta e dependências entre componentes.
-
-O Datadog também oferece recursos equivalentes de APM, observabilidade distribuída e integração com OpenTelemetry. Entretanto, para este projeto, o New Relic foi considerado uma alternativa adequada para demonstrar os recursos de observabilidade distribuída, mantendo a instrumentação independente do fornecedor.
+Para a observabilidade distribuída (APM e Distributed Tracing), optou-se pela utilização do New Relic.
+O fator determinante para a escolha foi o modelo de custos: o New Relic oferece um plano gratuito (free tier) mais generoso (100 GB/mês de ingestão sem custo), o que viabilizou o projeto sem gerar custos de infraestrutura de monitoramento.
+Ambos os fornecedores (New Relic e Datadog) oferecem recursos equivalentes e maduros de observabilidade, incluindo:
+⚬	Suporte nativo ao OpenTelemetry: Garantia de instrumentação 100% neutra (vendor-agnostic), enviando dados via OpenTelemetry Collector.
+⚬	Recursos avançados de APM: Visualização completa de traces, mapeamento de dependências entre microsserviços e análise de desempenho e latência.
+Portanto, a escolha do New Relic deu-se exclusivamente pela relação custo-benefício para a escala do projeto, mantendo a arquitetura pronta para eventuais migrações no futuro graças ao OpenTelemetry.
 
 ### Escolha entre OpsGenie e PagerDuty
 
