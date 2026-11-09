@@ -528,6 +528,219 @@ Essa visão consolidada facilita a identificação de indisponibilidades, degrad
 
 
 
+#### Dashboard Toggle Services – Observability
+
+O dashboard **Toggle Services – Observability** (`Dashboard-AppServices.json`) foi criado para acompanhar a saúde e o comportamento das aplicações da plataforma Toggle no ambiente de produção (`toggle-prod`). O dashboard concentra indicadores de consumo de CPU e memória, utilização dos limites de recursos configurados e ocorrência de erros HTTP 500.
+
+Cada painel possui thresholds (limites de cor) configurados que funcionam como alertas visuais: à medida que os valores ultrapassam os limites definidos, as cores mudam de verde para amarelo, laranja e vermelho, sinalizando níveis crescentes de atenção. Essa configuração permite identificar rapidamente situações que exigem investigação sem depender exclusivamente das regras de alerta do Grafana.
+
+O dashboard possui atualização a cada 5 minutos (`now-5m`).
+
+##### 1. Média de Erros HTTP 500
+
+Painel do tipo `stat` que exibe a quantidade média de respostas HTTP 500 registradas por aplicação nos últimos 5 minutos, permitindo uma consulta rápida da ocorrência de erros recentes.
+
+Consulta PromQL:
+
+```
+sum by (job) (
+  increase(
+    http_server_duration_milliseconds_count{
+      http_status_code="500"
+    }[$__range]
+  )
+)
+```
+
+Thresholds configurados:
+
+| Cor            | Limite | Significado                                                       |
+| -------------- | -----: | ----------------------------------------------------------------- |
+| Verde          |     0  | Sem ocorrência de erros 500.                                      |
+| Amarelo        |     5  | Início de erros esporádicos, merece atenção.                      |
+| Laranja escuro |    15  | Volume elevado de erros, indica falha recorrente.                 |
+| Vermelho       |    20  | Quantidade crítica de erros, exige intervenção.                   |
+
+##### 2. Latência de requisições
+
+Painel do tipo `stat` que apresenta o percentil 95 (P95) da duração das requisições HTTP, em milissegundos. Esse indicador representa o tempo abaixo do qual 95% das requisições são concluídas.
+
+Consulta PromQL:
+
+```
+histogram_quantile(0.95, sum by (le) (rate(http_server_duration_milliseconds_bucket[5m])))
+```
+
+Thresholds configurados:
+
+| Cor            | Limite (ms) | Significado                                                        |
+| -------------- | ----------: | ------------------------------------------------------------------ |
+| Verde          |          0  | Latência dentro do esperado.                                       |
+| Amarelo        |          6  | Latência começando a aumentar.                                     |
+| Laranja escuro |         10  | Latência elevada, indica degradação de desempenho.                 |
+| Vermelho escuro|         12  | Latência crítica, compromete a experiência do usuário.             |
+
+##### 3. Evolução de Erros HTTP 500 por Aplicação
+
+Painel do tipo `timeseries` que apresenta a evolução temporal da quantidade de respostas HTTP 500 registradas por aplicação, considerando janelas de 5 minutos. Permite identificar períodos de aumento de erros nos serviços monitorados.
+
+Consulta PromQL:
+
+```
+sum by (job) (
+  increase(
+    http_server_duration_milliseconds_count{
+      http_status_code="500"
+    }[5m]
+  )
+)
+```
+
+Thresholds configurados:
+
+| Cor            | Limite | Significado                                                       |
+| -------------- | -----: | ----------------------------------------------------------------- |
+| Verde          |     0  | Sem erros 500 no período.                                         |
+| Amarelo        |    10  | Aumento inicial de erros.                                         |
+| Laranja escuro |    15  | Volume elevado de erros.                                          |
+| Vermelho escuro|    20  | Quantidade crítica, indica falha significativa.                   |
+
+##### 4. Consumo de memória (MiB)
+
+Painel do tipo `bargauge` que apresenta o consumo absoluto de memória de cada serviço, em MiB, a partir da métrica `container_memory_working_set_bytes` dos containers do namespace `toggle-prod`.
+
+Consulta PromQL:
+
+```
+sort_desc(
+  sum by (container) (
+    container_memory_working_set_bytes{
+      namespace="toggle-prod",
+      container!="",
+      container!="POD"
+    }
+  ) / 1024 / 1024
+)
+```
+
+Thresholds configurados (modo percentual):
+
+| Cor               | Limite (%) | Significado                                               |
+| ----------------- | ---------: | --------------------------------------------------------- |
+| Verde             |          0 | Consumo dentro do esperado.                               |
+| Amarelo           |         80 | Consumo elevado, aproxima-se do limite.                   |
+| Laranja escuro    |         85 | Consumo próximo do limite, requer atenção.                |
+| Vermelho escuro   |         95 | Consumo crítico, risco de exaustão de memória.            |
+
+##### 5. Utilização de memória por node
+
+Painel do tipo `timeseries` que apresenta o percentual de memória RAM utilizada em cada node do cluster Kubernetes, considerando a memória total e a memória disponível. Permite acompanhar o consumo de recursos dos nodes e identificar possíveis situações de alta utilização.
+
+Consulta PromQL:
+
+```
+100 * (1 - node_memory_MemAvailable_bytes{job="node-exporter-via-otel"} / node_memory_MemTotal_bytes{job="node-exporter-via-otel"})
+```
+
+Thresholds configurados (modo percentual):
+
+| Cor            | Limite (%) | Significado                                               |
+| -------------- | ----------: | -------------------------------------------------------- |
+| Verde          |          0  | Utilização normal.                                       |
+| Amarelo        |         80  | Utilização elevada.                                      |
+| Laranja escuro |         85  | Utilização próxima do limite, requer atenção.            |
+| Vermelho escuro|         95  | Utilização crítica, risco de pressão de memória no node. |
+
+##### 6. Consumo de CPU por aplicação
+
+Painel do tipo `bargauge` que apresenta o consumo absoluto de CPU de cada aplicação, em millicores, calculado a partir da taxa de uso de CPU dos containers no namespace `toggle-prod`.
+
+Consulta PromQL:
+
+```
+sort_desc(
+  1000 *
+  sum by (container) (
+    rate(container_cpu_usage_seconds_total{
+      namespace="toggle-prod",
+      container!="",
+      container!="POD"
+    }[5m])
+  )
+)
+```
+
+Thresholds configurados (modo percentual):
+
+| Cor               | Limite (%) | Significado                                              |
+| ----------------- | ---------: | -------------------------------------------------------- |
+| Verde             |          0 | Consumo dentro do esperado.                              |
+| Amarelo           |         80 | Consumo elevado.                                         |
+| Laranja escuro    |         85 | Consumo próximo do limite.                               |
+| Vermelho escuro   |         95 | Consumo crítico, risco de throttling.                    |
+
+##### 7. Utilização do Limite de CPU por Aplicação
+
+Painel do tipo `timeseries` que apresenta o percentual de utilização de CPU de cada aplicação em relação ao limite de processamento configurado para seus containers no namespace `toggle-prod`. Permite acompanhar o consumo proporcional de CPU e identificar serviços que estejam se aproximando do limite estabelecido.
+
+Consulta PromQL:
+
+```
+sort_desc(
+  100 *
+  (
+    sum by (container) (
+      rate(container_cpu_usage_seconds_total{
+        namespace="toggle-prod",
+        container!="",
+        container!="POD"
+      }[5m])
+    )
+    /
+    on (container)
+    sum by (container) (
+      kube_pod_container_resource_limits{
+        namespace="toggle-prod",
+        resource="cpu",
+        unit="core"
+      }
+    )
+  )
+)
+```
+
+Thresholds configurados:
+
+| Cor      | Limite (%)  | Significado                                                   |
+| -------- | ----------: | ------------------------------------------------------------- |
+| Verde    |          0  | Utilização dentro do limite.                                  |
+| Vermelho |         80  | Utilização elevada em relação ao limite, risco de throttling. |
+
+##### 8. Logs dos microsserviços
+
+Painel do tipo `logs` integrado ao Loki que apresenta os logs coletados pelo Grafana Alloy, com filtro inicial pelo namespace `toggle-prod`. Permite visualizar logs em ordem cronológica inversa, consultar registros com timestamps, expandir detalhes das mensagens e investigar ocorrências de erros e eventos operacionais.
+
+Consulta LogQL:
+
+```
+{instance=~".*toggle-prod.*"}
+```
+
+Esse painel não possui thresholds configurados, pois sua finalidade é a investigação de logs em conjunto com os demais indicadores do dashboard.
+
+### Propósito dos alertas visuais do dashboard
+
+Os thresholds configurados nos painéis do dashboard **Toggle Services – Observability** funcionam como um primeiro nível de alerta visual, permitindo que operadores identifiquem rapidamente situações que requerem atenção:
+
+- **Erros HTTP 500:** os painéis de média e evolução temporal sinalizam o aumento de falhas internas nas aplicações, com escalas de cores que vão de verde (sem erros) a vermelho (20 ou mais ocorrências). Esses indicadores são complementares ao alerta `erro500` do Grafana, que aciona o mecanismo de self-healing e a escalação para o JSM.
+- **Latência P95:** o painel de latência utiliza thresholds em milissegundos para sinalizar degradações de desempenho, alinhando-se com os alertas de latência P95 (P1 a P4) configurados nas regras do Grafana.
+- **Consumo de recursos:** os painéis de CPU e memória, por aplicação e por node, utilizam thresholds percentuais para indicar quando os serviços ou nodes se aproximam dos limites configurados, permitindo antecipar problemas de capacidade e possíveis throttling ou pressão de memória.
+- **Utilização de limites de CPU:** o painel que compara o consumo com o limite configurado (`kube_pod_container_resource_limits`) sinaliza quando uma aplicação ultrapassa 80% do limite, indicando proximidade do teto de processamento.
+
+A combinação desses indicadores visuais com as regras de alerta do Grafana e os mecanismos de notificação e self-healing cria uma camada de observabilidade que vai da detecção visual rápida até a resposta automatizada e o escalonamento operacional.
+
+
+
 ## Alertas Inteligentes e Self-Healing
 
 ```mermaid
@@ -882,13 +1095,14 @@ Essa arquitetura oferece flexibilidade, reduz o acoplamento entre aplicações e
 
 ### Escolha entre Datadog e New Relic
 
-Para o monitoramento APM e Distributed Tracing, foi escolhido o New Relic em vez do Datadog.
+Para a observabilidade distribuída (APM e Distributed Tracing), optou-se pela utilização do New Relic.
+O fator determinante para a escolha foi o modelo de custos: o New Relic oferece um plano gratuito (free tier) mais generoso (100 GB/mês de ingestão sem custo), o que viabilizou o projeto sem gerar custos de infraestrutura de monitoramento.
 
-A decisão considerou principalmente a facilidade de integração com OpenTelemetry, a disponibilidade de recursos de APM e rastreamento distribuído e a adequação ao escopo do projeto.
+Ambos os fornecedores (New Relic e Datadog) oferecem recursos equivalentes e maduros de observabilidade, incluindo:
+- Suporte nativo ao OpenTelemetry: Garantia de instrumentação 100% neutra (vendor-agnostic), enviando dados via OpenTelemetry Collector.
+- Recursos avançados de APM: Visualização completa de traces, mapeamento de dependências entre microsserviços e análise de desempenho e latência.
 
-O New Relic permite visualizar os traces recebidos pelo OpenTelemetry Collector, identificar os microsserviços envolvidos nas requisições e analisar tempos de resposta e dependências entre componentes.
-
-O Datadog também oferece recursos equivalentes de APM, observabilidade distribuída e integração com OpenTelemetry. Entretanto, para este projeto, o New Relic foi considerado uma alternativa adequada para demonstrar os recursos de observabilidade distribuída, mantendo a instrumentação independente do fornecedor.
+Portanto, a escolha do New Relic deu-se exclusivamente pela relação custo-benefício para a escala do projeto, mantendo a arquitetura pronta para eventuais migrações no futuro graças ao OpenTelemetry.
 
 ### Escolha entre OpsGenie e PagerDuty
 
