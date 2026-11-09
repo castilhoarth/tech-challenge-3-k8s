@@ -537,6 +537,12 @@ Cada painel possui thresholds (limites de cor) configurados que funcionam como a
 
 O dashboard possui atualização a cada 5 minutos (`now-5m`).
 
+![image-20261109193649997](./img/image-20261109193649997.png)
+
+![image-20261109193732161](./img/image-20261109193732161.png)
+
+
+
 ##### 1. Média de Erros HTTP 500
 
 Painel do tipo `stat` que exibe a quantidade média de respostas HTTP 500 registradas por aplicação nos últimos 5 minutos, permitindo uma consulta rápida da ocorrência de erros recentes.
