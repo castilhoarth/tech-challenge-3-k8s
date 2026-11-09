@@ -30,8 +30,6 @@ analytics-service (Python): Consome eventos de uma fila e salva dados de anális
 
 A missão desse projeto é automatizar toda a infraestrutura e o ciclo de vida dos 5 microsserviços do ToggleMaster (auth, flag, targeting, evaluation, analytics) utilizando as práticas de IaC, CI/CD e DevSecOps.
 
-
-
 ## Arquitetura
 
 ![arquitetura](./img/arquitetura.png)

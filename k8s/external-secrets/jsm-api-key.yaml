@@ -1,0 +1,24 @@
+
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: grafana-jsm-api-key
+  namespace: observability
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  refreshInterval: 1h
+
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+
+  target:
+    name: grafana-jsm-api-key
+    creationPolicy: Owner
+
+  data:
+    - secretKey: JSM_OPSGENIE_TOKEN
+      remoteRef:
+        key: tech-challenge/jsm-api-key
+        property: api-key

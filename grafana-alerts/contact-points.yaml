@@ -1,0 +1,27 @@
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: self-healing-webhook
+    receivers:
+      - uid: self-healing-webhook
+        type: webhook
+        settings:
+          url: $SELF_HEALING_WEBHOOK_URL
+          httpMethod: POST
+          authorization_scheme: Bearer
+          authorization_credentials: $SELF_HEALING_WEBHOOK_TOKEN
+
+  - orgId: 1
+    name: jsm-operations
+    receivers:
+      - uid: jsm-operations
+        type: opsgenie
+        settings:
+          apiUrl: https://api.atlassian.com/jsm/ops/integration/v2/alerts
+          apiKey: $JSM_OPSGENIE_TOKEN
+          autoClose: true
+          disableResolveMessage: false
+          overridePriority: true
+          sendTagsAs: both

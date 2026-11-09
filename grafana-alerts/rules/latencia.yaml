@@ -1,0 +1,375 @@
+
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: latency
+    folder: Toggle-Prod
+    interval: 30s
+
+    rules:
+      # ==========================================
+      # LATENCY LOW - P4
+      # p95 > 50ms e <= 100ms por 1 minuto
+      # ==========================================
+      - uid: latency-low
+        title: Latency Low
+        condition: B
+
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              editorMode: code
+              expr: |
+                (
+                  histogram_quantile(
+                    0.95,
+                    sum by (le, job) (
+                      rate(http_server_duration_milliseconds_bucket[5m])
+                    )
+                  ) > 50
+                )
+                and
+                (
+                  histogram_quantile(
+                    0.95,
+                    sum by (le, job) (
+                      rate(http_server_duration_milliseconds_bucket[5m])
+                    )
+                  ) <= 100
+                )
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+
+          - refId: B
+            datasourceUid: __expr__
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              type: threshold
+              refId: B
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+
+        annotations:
+          summary: "Latência p95 acima de 50ms - {{ $labels.job }}"
+          description: "Latência p95 entre 50ms e 100ms no serviço {{ $labels.job }}."
+
+        labels:
+          severity: info
+          og_priority: P4
+          namespace: toggle-prod
+          deployment: '{{ $$labels.job }}'
+
+        isPaused: false
+
+        notification_settings:
+          receiver: jsm-operations
+          group_by:
+            - alertname
+            - job
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 24h
+
+
+      # ==========================================
+      # LATENCY MEDIUM - P3
+      # p95 > 100ms e <= 200ms por 1 minuto
+      # ==========================================
+      - uid: latency-medium
+        title: Latency Medium
+        condition: B
+
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              editorMode: code
+              expr: |
+                (
+                  histogram_quantile(
+                    0.95,
+                    sum by (le, job) (
+                      rate(http_server_duration_milliseconds_bucket[5m])
+                    )
+                  ) > 100
+                )
+                and
+                (
+                  histogram_quantile(
+                    0.95,
+                    sum by (le, job) (
+                      rate(http_server_duration_milliseconds_bucket[5m])
+                    )
+                  ) <= 200
+                )
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+
+          - refId: B
+            datasourceUid: __expr__
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              type: threshold
+              refId: B
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+
+        annotations:
+          summary: "Latência p95 acima de 100ms - {{ $labels.job }}"
+          description: "Latência p95 entre 100ms e 200ms no serviço {{ $labels.job }}."
+
+        labels:
+          severity: warning
+          og_priority: P3
+          namespace: toggle-prod
+          deployment: '{{ $$labels.job }}'
+
+        isPaused: false
+
+        notification_settings:
+          receiver: jsm-operations
+          group_by:
+            - alertname
+            - job
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 24h
+
+      # ==========================================
+      # LATENCY HIGH - P2
+      # p95 > 200ms e <= 500ms por 1 minuto
+      # ==========================================
+      - uid: latency-high
+        title: Latency High
+        condition: B
+
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              editorMode: code
+              expr: |
+                (
+                  histogram_quantile(
+                    0.95,
+                    sum by (le, job) (
+                      rate(http_server_duration_milliseconds_bucket[5m])
+                    )
+                  ) > 200
+                )
+                and
+                (
+                  histogram_quantile(
+                    0.95,
+                    sum by (le, job) (
+                      rate(http_server_duration_milliseconds_bucket[5m])
+                    )
+                  ) <= 500
+                )
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+
+          - refId: B
+            datasourceUid: __expr__
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              type: threshold
+              refId: B
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+
+        annotations:
+          summary: "Latência p95 acima de 200ms - {{ $labels.job }}"
+          description: "Latência p95 entre 200ms e 500ms no serviço {{ $labels.job }}."
+
+        labels:
+          severity: error
+          og_priority: P2
+          namespace: toggle-prod
+          deployment: '{{ $$labels.job }}'
+
+        isPaused: false
+
+        notification_settings:
+          receiver: jsm-operations
+          group_by:
+            - alertname
+            - job
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 24h
+
+      # ==========================================
+      # LATENCY CRITICAL - P1
+      # p95 > 500ms por 1 minuto
+      # ==========================================
+      - uid: latency-critical
+        title: Latency Critical
+        condition: B
+
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              editorMode: code
+              expr: |
+                histogram_quantile(
+                  0.95,
+                  sum by (le, job) (
+                    rate(http_server_duration_milliseconds_bucket[5m])
+                  )
+                ) > 500
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+
+          - refId: B
+            datasourceUid: __expr__
+            relativeTimeRange:
+              from: 300
+              to: 0
+            model:
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              type: threshold
+              refId: B
+              conditions:
+                - evaluator:
+                    params:
+                      - 0
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params:
+                      - B
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+
+        annotations:
+          summary: "Latência p95 crítica acima de 500ms - {{ $labels.job }}"
+          description: "Latência p95 acima de 500ms no serviço {{ $labels.job }}."
+
+        labels:
+          severity: critical
+          og_priority: P1
+          namespace: toggle-prod
+          deployment: '{{ $$labels.job }}'
+
+        isPaused: false
+
+        notification_settings:
+          receiver: jsm-operations
+          group_by:
+            - alertname
+            - job
+          group_wait: 0s
+          group_interval: 1m
+          repeat_interval: 24h

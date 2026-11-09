@@ -1,0 +1,166 @@
+
+# OpenTelemetry Collector - recepção centralizada de telemetria.
+# Uma réplica inicial para reduzir o consumo de recursos.
+
+mode: deployment
+replicaCount: 1
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+  tag: 0.159.0
+
+command:
+  name: /otelcol-contrib
+
+clusterRole:
+  create: true
+  rules:
+    - apiGroups: [""]
+      resources: ["pods"]
+      verbs: ["get", "list", "watch"]
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 96Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+extraEnvs:
+  - name: NEW_RELIC_LICENSE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: newrelic-license-key
+        key: NEW_RELIC_LICENSE_KEY
+
+# Endpoints acessíveis dentro do cluster.
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+    protocol: TCP
+    appProtocol: grpc
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+    protocol: TCP
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: ${env:MY_POD_IP}:4317
+        http:
+          endpoint: ${env:MY_POD_IP}:4318
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: node-exporter-via-otel
+            scrape_interval: 30s
+            kubernetes_sd_configs:
+              - role: pod
+                namespaces:
+                  names:
+                    - observability
+            relabel_configs:
+              - source_labels:
+                  - __meta_kubernetes_pod_label_app_kubernetes_io_name
+                action: keep
+                regex: prometheus-node-exporter
+              - source_labels:
+                  - __meta_kubernetes_pod_container_port_number
+                action: keep
+                regex: "9100"
+          - job_name: blackbox-health-via-otel
+            scrape_interval: 30s
+            metrics_path: /probe
+            params:
+              module: [http_2xx]
+            static_configs:
+              - targets:
+                  - http://auth-service.toggle-prod.svc.cluster.local:8001/health
+                labels:
+                  service: auth-service
+              - targets:
+                  - http://flag-service.toggle-prod.svc.cluster.local:8002/health
+                labels:
+                  service: flag-service
+              - targets:
+                  - http://targeting-service.toggle-prod.svc.cluster.local:8003/health
+                labels:
+                  service: targeting-service
+              - targets:
+                  - http://evaluation-service.toggle-prod.svc.cluster.local:8004/health
+                labels:
+                  service: evaluation-service
+              - targets:
+                  - http://analytics-service.toggle-prod.svc.cluster.local:8005/health
+                labels:
+                  service: analytics-service
+            relabel_configs:
+              - source_labels: [__address__]
+                target_label: __param_target
+              - source_labels: [__param_target]
+                target_label: instance
+              - target_label: __address__
+                replacement: blackbox-exporter-prometheus-blackbox-exporter.observability.svc.cluster.local:9115
+
+  processors:
+    memory_limiter:
+      check_interval: 5s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+    batch: {}
+
+  exporters:
+    debug:
+      verbosity: detailed
+    otlp_http/newrelic:
+      endpoint: https://otlp.nr-data.net
+      headers:
+        api-key: ${env:NEW_RELIC_LICENSE_KEY}
+    prometheusremotewrite:
+      endpoint: http://kube-prometheus-stack-prometheus.observability.svc:9090/api/v1/write
+    otlphttp/loki:
+      endpoint: http://loki.observability.svc.cluster.local:3100/otlp
+
+  extensions:
+    health_check:
+      endpoint: ${env:MY_POD_IP}:13133
+
+  service:
+    extensions:
+      - health_check
+    pipelines:
+      traces:
+        receivers:
+          - otlp
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - debug
+          - otlp_http/newrelic
+      metrics:
+        receivers:
+          - otlp
+          - prometheus
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - debug
+          - prometheusremotewrite
+      logs:
+        receivers:
+          - otlp
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - debug
+          - otlphttp/loki

@@ -1,0 +1,17 @@
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: observability
+
+configMapGenerator:
+  - name: grafana-alerting
+    files:
+      - contact-points.yaml
+      - http-500.yaml=rules/http-500.yaml
+      - latencia.yaml=rules/latencia.yaml
+
+
+generatorOptions:
+  disableNameSuffixHash: true
+

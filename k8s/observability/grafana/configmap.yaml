@@ -1,0 +1,10 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-public-url
+  namespace: observability
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+data:
+  root_url: "http://localhost/grafana/"

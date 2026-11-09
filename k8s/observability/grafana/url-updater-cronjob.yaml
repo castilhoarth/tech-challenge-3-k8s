@@ -1,0 +1,58 @@
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: grafana-url-updater
+  namespace: observability
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  schedule: "*/5 * * * *"
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 120
+      template:
+        spec:
+          serviceAccountName: grafana-url-updater
+          restartPolicy: Never
+          containers:
+            - name: updater
+              image: registry.k8s.io/kubectl:v1.36.0
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  HOST="$(kubectl get service ingress-nginx-controller \
+                    -n ingress-nginx \
+                    -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
+
+                  if [ -z "$HOST" ]; then
+                    echo "Hostname do ELB ainda não disponível."
+                    exit 1
+                  fi
+
+                  URL="http://${HOST}/grafana/"
+                  CURRENT="$(kubectl get configmap grafana-public-url \
+                    -n observability \
+                    -o jsonpath='{.data.root_url}')"
+
+                  if [ "$URL" = "$CURRENT" ]; then
+                    echo "URL do Grafana sem alterações: $URL"
+                    exit 0
+                  fi
+
+                  echo "Atualizando URL do Grafana para: $URL"
+
+                  kubectl patch configmap grafana-public-url \
+                    -n observability \
+                    --type merge \
+                    -p "{\"data\":{\"root_url\":\"${URL}\"}}"
+
+                  kubectl rollout restart deployment/kube-prometheus-stack-grafana \
+                    -n observability

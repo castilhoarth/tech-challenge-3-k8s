@@ -1,0 +1,134 @@
+# Configuração do kube-prometheus-stack para o cluster EKS.
+# Recursos iniciais conservadores para nodes t3.small.
+# Dados de métricas e dashboards não terão persistência em PVC.
+
+# Instala/atualiza as CRDs antes do Operator
+crds:
+  enabled: true
+  upgradeJob:
+    enabled: true
+    forceConflicts: true
+
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    enableRemoteWriteReceiver: true
+    routePrefix: /
+    serviceMonitorSelectorNilUsesHelmValues: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 768Mi
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 96Mi
+    limits:
+      cpu: 200m
+      memory: 192Mi
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 48Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+prometheus-node-exporter:
+  prometheus:
+    monitor:
+      enabled: false
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+grafana:
+  enabled: true
+  persistence:
+    enabled: false
+
+  envValueFrom:
+    GF_SERVER_ROOT_URL:
+      configMapKeyRef:
+        name: grafana-public-url
+        key: root_url
+
+    SELF_HEALING_WEBHOOK_TOKEN:
+      secretKeyRef:
+        name: self-healing-webhook-token
+        key: WEBHOOK_TOKEN
+
+    SELF_HEALING_WEBHOOK_URL:
+      secretKeyRef:
+        name: self-healing-webhook-url
+        key: WEBHOOK_URL
+
+    JSM_OPSGENIE_TOKEN:
+      secretKeyRef:
+        name: grafana-jsm-api-key
+        key: JSM_OPSGENIE_TOKEN
+
+  grafana.ini:
+    server:
+      domain: ""
+      enforce_domain: false
+      serve_from_sub_path: false
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 96Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  # Datasource adicional: Loki
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: loki
+      access: proxy
+      url: http://loki.observability.svc.cluster.local:3100
+      isDefault: false
+      editable: true
+
+  # Provisionamento automático dos dashboards via ConfigMap
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: observability
+      folderAnnotation: grafana_folder
+      provider:
+        allowUiUpdates: false
+        foldersFromFilesStructure: false
+
+  
+  extraConfigmapMounts:
+    - name: grafana-alerting
+      mountPath: /etc/grafana/provisioning/alerting
+      configMap: grafana-alerting
+      readOnly: true
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 48Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
