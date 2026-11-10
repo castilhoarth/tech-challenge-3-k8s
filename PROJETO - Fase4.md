@@ -91,6 +91,7 @@ flowchart TD
         O["OpenTelemetry Collector"]
         P["Prometheus"]
         L["Loki"]
+        P --> G["Grafana - visualização planejada"]
     end
 
     S -->|"OTLP: traces, métricas e logs"| O
@@ -98,7 +99,6 @@ flowchart TD
     O -->|"Métricas"| P
     O -->|"Logs via OTLP"| L
     A -->|"Logs dos contêineres"| L
-    P --> G["Grafana - visualização planejada"]
     L --> G
 ```
 
@@ -125,6 +125,8 @@ http://opentelemetry-collector.observability.svc.cluster.local:4318
 ```
 
 O protocolo de exportação configurado nas aplicações é `http/protobuf`.
+
+Embora o Collector receba a telemetria dos serviços pelo mesmo endpoint OTLP, a instrumentação variou conforme a linguagem. Nos serviços Python, foi possível utilizar a auto-instrumentação do OpenTelemetry, iniciada por `opentelemetry-instrument`. Já nos serviços Go, foi necessário alterar o código para inicializar os SDKs do OpenTelemetry e configurar a exportação da telemetria. Assim, o Collector centraliza o recebimento, mas cada linguagem exigiu uma abordagem própria na aplicação.
 
 ### Monitoramento de Infraestrutura
 
@@ -1132,4 +1134,3 @@ A arquitetura adotada combina instrumentação aberta com ferramentas especializ
 A utilização do OpenTelemetry como padrão de instrumentação, Prometheus e Loki para armazenamento e consulta, Grafana para visualização, New Relic para APM e Jira Service Management para operações resulta em uma solução modular, integrada e extensível.
 
 ## Video de Apresentação
-
