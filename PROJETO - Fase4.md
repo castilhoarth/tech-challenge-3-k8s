@@ -1125,4 +1125,4 @@ A arquitetura adotada combina instrumentação aberta com ferramentas especializ
 A utilização do OpenTelemetry como padrão de instrumentação, Prometheus e Loki para armazenamento e consulta, Grafana para visualização, New Relic para APM e Jira Service Management para operações resulta em uma solução modular, integrada e extensível.
 
 ## Video de Apresentação
-
+https://www.youtube.com/watch?v=TfDE35N_Ifg
