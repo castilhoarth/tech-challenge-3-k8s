@@ -6,7 +6,7 @@
 
 - **Projeto:** Toggle Master Microservices
 - **Fase:** 04 - Observabilidade
-- **Integrantes:** Grupo 68
+- **Integrantes:** Grupo 52
   - Arthur de Castilho Nascimento - RM371601 - [castartx@gmail.com](mailto:castartx@gmail.com)
   - Gerusa Fernandes Lobo Nogueira - RM367568 - [gerusalobo@gmail.com](mailto:gerusalobo@gmail.com)
   - José Henrique Cavalcanti de Melo Filho -  RM 372074 - [meloricke.bra@gmail.com](mailto:meloricke.bra@gmail.com)
